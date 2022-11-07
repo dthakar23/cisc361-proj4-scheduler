@@ -76,14 +76,13 @@ allocproc(void)
 
   struct proc *p;
   char *sp;
-  // initialize three added fields 
-  p->qnum = 3;
-  p->iterations = 8;
-  p->idlecount = 0;
-
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    p->qnum = 3;
+    p->iterations = 8;
+    p->idlecount = 0;
+
     if(p->state == UNUSED)
       goto found;
 
