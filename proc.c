@@ -78,8 +78,8 @@ allocproc(void)
   char *sp;
   // initialize three added fields 
   p->qnum = 3;
-  p->ileft = 8;
-  p->idle = 0;
+  p->iterations = 8;
+  p->idlecount = 0;
 
   acquire(&ptable.lock);
 
