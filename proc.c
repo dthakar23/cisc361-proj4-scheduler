@@ -73,8 +73,13 @@ myproc(void) {
 static struct proc*
 allocproc(void)
 {
+
   struct proc *p;
   char *sp;
+  // initialize three added fields 
+  p->qnum = 3;
+  p->ileft = 8;
+  p->count = 0;
 
   acquire(&ptable.lock);
 
