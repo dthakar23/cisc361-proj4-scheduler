@@ -79,9 +79,6 @@ allocproc(void)
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    p->qnum = 3;
-    p->iterations = 8;
-    p->idlecount = 0;
 
     if(p->state == UNUSED)
       goto found;
@@ -90,6 +87,10 @@ allocproc(void)
   return 0;
 
 found:
+  // initialize three fields for all new processes (unused) 
+  p->qnum = 3;
+  p->iterations = 8;
+  p->idlecount = 0;
   p->state = EMBRYO;
   p->pid = nextpid++;
 
