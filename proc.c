@@ -338,22 +338,46 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->state != RUNNABLE){
+        if (p->iterations == 0) {
+            if (p->qnum == 0) {
+                p->idlecount = 0;
+                p->iterations = 500;
+            }
+            else if (p->qnum == 1) {
+                p->idlecount = 0;
+                p->iterations = 24;
+                p->qnum--;
+            }
+            else if (p->qnum == 2) {
+                p->idlecount = 0;
+                p->iterations = 16;
+                p->qnum--;
+            }
+            else if (p->qnum == 3) {
+                p->idlecount = 0;
+                p->iterations = 8;
+                p->qnum--;
+            }
+            p->idlecount++;
+        }
+      } else if (p->state == RUNNABLE  && p->qnum != 3) {
         continue;
+        p->state = RUNNING;
+        p->idlecount = 0;                                                                                                                                                           
+        p->iterations--;
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
 
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+        cprintf("Queue Position: %d , Idle Count: %d , Iterations Left: %d0ms.\n , Process [%s:%d] is running. \n", p->qnum, p->idlecount, p->iterations, p->name, c->proc);
+      }
     }
     release(&ptable.lock);
 
